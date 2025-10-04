@@ -10,11 +10,7 @@ const corsHeaders = {
   "Content-Type": "application/json",
 };
 
-function jsonResponse(
-  body: unknown,
-  status = 200,
-  extraHeaders: Record<string, string> = {}
-) {
+function jsonResponse(body: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, ...extraHeaders },
@@ -36,29 +32,32 @@ Deno.serve(async (req: Request) => {
     if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
       return jsonResponse({ error: "No or invalid Authorization header" }, 401);
     }
-    const token = authHeader.split(" ")[1];
 
+    const token = authHeader.split(" ")[1];
+    
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    const SUPABASE_SERVICE_ROLE_KEY =
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
-      return jsonResponse(
-        { error: "Missing Supabase environment variables" },
-        500
-      );
+      return jsonResponse({ error: "Missing Supabase environment variables" }, 500);
     }
 
     // Cliente em nome do caller (usa o token passado no Authorization)
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-      auth: { persistSession: false, autoRefreshToken: false },
+      global: { 
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        } 
+      },
+      auth: { 
+        persistSession: false, 
+        autoRefreshToken: false 
+      }
     });
 
     // Pega usuário que está chamando
-    const { data: getUserData, error: getUserError } =
-      await supabaseClient.auth.getUser();
+    const { data: getUserData, error: getUserError } = await supabaseClient.auth.getUser();
     const caller = getUserData?.user ?? null;
     if (getUserError || !caller) {
       return jsonResponse({ error: "Invalid or expired token" }, 401);
@@ -72,18 +71,12 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (profileError) {
-      console.info(
-        "profile read error (caller)",
-        profileError.message ?? profileError
-      );
+      console.info("profile read error (caller)", profileError.message ?? profileError);
       return jsonResponse({ error: "Unable to verify caller role" }, 403);
     }
 
     if (profile?.role !== "admin") {
-      return jsonResponse(
-        { error: "Apenas admins podem deletar usuários" },
-        403
-      );
+      return jsonResponse({ error: "Apenas admins podem deletar usuários" }, 403);
     }
 
     // Parse body
@@ -108,24 +101,19 @@ Deno.serve(async (req: Request) => {
 
     // Prevenir que admin delete a si mesmo
     if (user_id === caller.id) {
-      return jsonResponse(
-        { error: "Você não pode deletar sua própria conta" },
-        400
-      );
+      return jsonResponse({ error: "Você não pode deletar sua própria conta" }, 400);
     }
 
     // Cliente admin (service role) — bypassa RLS
-    const supabaseAdmin = createClient(
-      SUPABASE_URL,
-      SUPABASE_SERVICE_ROLE_KEY,
-      {
-        auth: { autoRefreshToken: false, persistSession: false },
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { 
+      auth: { 
+        autoRefreshToken: false, 
+        persistSession: false 
       }
-    );
+    });
 
     // Deleta usuário do Auth (cascateará para public.users via ON DELETE CASCADE)
-    const { data: deleteData, error: deleteError } =
-      await supabaseAdmin.auth.admin.deleteUser(user_id);
+    const { data: deleteData, error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user_id);
 
     if (deleteError) {
       const message = (deleteError as any)?.message ?? String(deleteError);
@@ -133,27 +121,18 @@ Deno.serve(async (req: Request) => {
       if (message.includes("not found") || message.includes("User not found")) {
         return jsonResponse({ error: "Usuário não encontrado" }, 404);
       }
-      return jsonResponse(
-        { error: "Falha ao deletar usuário", details: message },
-        400
-      );
+      return jsonResponse({ error: "Falha ao deletar usuário", details: message }, 400);
     }
 
     // Sucesso
-    return jsonResponse(
-      {
-        success: true,
-        message: "Usuário deletado com sucesso",
-        user_id,
-      },
-      200
-    );
+    return jsonResponse({ 
+      success: true, 
+      message: "Usuário deletado com sucesso", 
+      user_id 
+    }, 200);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("Unhandled error in delete-user function:", message);
-    return jsonResponse(
-      { error: "Internal server error", details: message },
-      500
-    );
+    return jsonResponse({ error: "Internal server error", details: message }, 500);
   }
 });
