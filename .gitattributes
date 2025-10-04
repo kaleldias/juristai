@@ -1,0 +1,88 @@
+# ---------------------------------------
+# Linha de base: texto sempre com LF
+# ---------------------------------------
+*                 text=auto eol=lf
+
+# Força LF nos tipos mais comuns (mesmo se editor estiver errado)
+*.js              text eol=lf
+*.jsx             text eol=lf
+*.ts              text eol=lf
+*.tsx             text eol=lf
+*.mjs             text eol=lf
+*.cjs             text eol=lf
+*.json            text eol=lf
+*.jsonc           text eol=lf
+*.yml             text eol=lf
+*.yaml            text eol=lf
+*.css             text eol=lf
+*.scss            text eol=lf
+*.sass            text eol=lf
+*.less            text eol=lf
+*.md              text eol=lf
+*.mdx             text eol=lf
+*.html            text eol=lf
+*.svg             text eol=lf
+*.env             text eol=lf
+*.env.*           text eol=lf
+*.gitignore       text eol=lf
+*.gitattributes   text eol=lf
+*.prettierrc      text eol=lf
+*.eslintrc        text eol=lf
+*.editorconfig    text eol=lf
+Dockerfile        text eol=lf
+
+# ---------------------------------------
+# Lockfiles — trate como texto (LF) e sem “merge exótico”
+# ---------------------------------------
+package-lock.json text eol=lf
+yarn.lock         text eol=lf
+pnpm-lock.yaml    text eol=lf
+bun.lockb         text eol=lf
+
+# ---------------------------------------
+# Binários (não tentar normalizar nem fazer diff)
+# ---------------------------------------
+# Imagens
+*.png             binary
+*.jpg             binary
+*.jpeg            binary
+*.gif             binary
+*.webp            binary
+*.avif            binary
+*.ico             binary
+
+# Fontes
+*.woff            binary
+*.woff2           binary
+*.ttf             binary
+*.otf             binary
+*.eot             binary
+
+# Mídia
+*.mp3             binary
+*.mp4             binary
+*.wav             binary
+*.ogg             binary
+*.webm            binary
+*.mov             binary
+
+# Arquivos compactados
+*.zip             binary
+*.gz              binary
+*.bz2             binary
+*.7z              binary
+*.rar             binary
+
+# ---------------------------------------
+# Next.js — normalmente não versionamos .next/
+# (isso vai no .gitignore, não aqui)
+# ---------------------------------------
+
+# ---------------------------------------
+# (Opcional) Git LFS — só ative se usar arquivos grandes
+# Descomente e configure LFS no repositório antes:
+# git lfs install
+# git lfs track "*.mp4"
+# ---------------------------------------
+# *.mp4           filter=lfs diff=lfs merge=lfs -text
+# *.psd           filter=lfs diff=lfs merge=lfs -text
