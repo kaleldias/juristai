@@ -26,4 +26,8 @@ dist-ssr
 # Pastas
 backend/prompts
 backend/sql/02_contract
-frontend/prompts
+frontend/
+
+
+# scripts teste
+script.js
