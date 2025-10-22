@@ -155,12 +155,12 @@ Deno.serve(async (req) => {
     const sha256 = await sha256Hex(buf);
 
     // 4) supabase admin client
-    const supa = createClient(SUPABASE_URL, SERVICE_ROLE, {
+    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
     // 5) checagem rápida de duplicidade (curto-circuito)
-    const { data: dup, error: dupErr } = await supa
+    const { data: dup, error: dupErr } = await supabase
       .from("contract_files")
       .select("id")
       .eq("user_id", userId)
@@ -188,7 +188,7 @@ Deno.serve(async (req) => {
 
     // 6) upload storage (bucket privado)
     const storagePath = buildStoragePath(userId);
-    const up = await supa.storage.from(BUCKET).upload(storagePath, file, {
+    const up = await supabase.storage.from(BUCKET).upload(storagePath, file, {
       contentType: "application/pdf",
       upsert: false,
       cacheControl: "3600",
@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
     }
 
     // 7) insert metadados (tratar 23505 -> duplicado por índice único)
-    const ins = await supa
+    const ins = await supabase
       .from("contract_files")
       .insert({
         user_id: userId,
@@ -222,7 +222,7 @@ Deno.serve(async (req) => {
     if (ins.error) {
       // tentativa de limpeza do arquivo órfão
       try {
-        await supa.storage.from(BUCKET).remove([storagePath]);
+        await supabase.storage.from(BUCKET).remove([storagePath]);
       } catch {}
       if (ins.error.code === "23505") {
         return errorResponse(
