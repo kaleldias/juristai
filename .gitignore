@@ -31,3 +31,5 @@ frontend/
 
 # scripts teste
 script.js
+cookie.json
+prompts/

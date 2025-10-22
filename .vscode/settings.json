@@ -1,27 +1,57 @@
 {
-   "files.eol": "\n",
-   "files.autoSave": "afterDelay",
-   "files.autoSaveDelay": 1000,
-   "editor.tabSize": 2,
-   "editor.semanticHighlighting.enabled": true, // ou false para simplificar
-   "workbench.editor.labelFormat": "short",
- 
-   // 🛠 Formatação e Lint
-   "editor.defaultFormatter": "esbenp.prettier-vscode",
-   "editor.formatOnSave": true,
- 
-   "editor.codeActionsOnSave": {
-     "source.fixAll.eslint": "explicit"
-   },
-   "[shellscript]": {
-     "editor.defaultFormatter": "foxundermoon.shell-format"
-   },
- 
-   "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-   "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-   "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-   "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-   "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-   "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-   "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
- }
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.lint": true,
+  "deno.unstable": [
+    "bare-node-builtins",
+    "byonm",
+    "sloppy-imports",
+    "unsafe-proto",
+    "webgpu",
+    "broadcast-channel",
+    "worker-options",
+    "cron",
+    "kv",
+    "ffi",
+    "fs",
+    "http",
+    "net"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.semanticHighlighting.enabled": true,
+  "editor.tabSize": 2,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.eol": "\n",
+  "workbench.editor.labelFormat": "short",
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools"
+  }
+}
