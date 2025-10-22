@@ -86,6 +86,7 @@ Deno.serve(async (req) => {
 
     // 2) form-data + validações
     const form = await req.formData();
+    console.log(form)
     const file = form.get("file");
     if (!(file instanceof File)) {
       return errorResponse(
