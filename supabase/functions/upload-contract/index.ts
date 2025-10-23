@@ -11,16 +11,18 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 // ---------- helpers ----------
 const toHex = (buf: ArrayBuffer) => {
   const arr = [...new Uint8Array(buf)];
-  console.log('Resultado visão bytes:', arr)
   const hex = arr.map((b) => b.toString(16).padStart(2, "0")).join("");
-  console.log('Resultado hexadecimal:', hex)
+  return hex;
 };
 
-const sha256Hex = async (buf: ArrayBuffer) =>
-  toHex(await crypto.subtle.digest("SHA-256", buf));
+const sha256Hex = async (buf: ArrayBuffer) => {
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return toHex(hash);
+};
 
-const isPdfMagic = (bytes: Uint8Array) =>
-  new TextDecoder().decode(bytes.slice(0, 5)) === "%PDF-";
+const isPdfMagic = (bytes: Uint8Array) => {
+  return new TextDecoder().decode(bytes.slice(0, 5)) === "%PDF-";
+};
 
 const buildStoragePath = (userId: string) => {
   const id = crypto.randomUUID();
@@ -86,7 +88,6 @@ Deno.serve(async (req) => {
 
     // 2) form-data + validações
     const form = await req.formData();
-    console.log(form)
     const file = form.get("file");
     if (!(file instanceof File)) {
       return errorResponse(
@@ -97,6 +98,7 @@ Deno.serve(async (req) => {
         cors
       );
     }
+
     if (!file.name.toLowerCase().endsWith(".pdf")) {
       return errorResponse(
         "Invalid file format",
@@ -106,6 +108,7 @@ Deno.serve(async (req) => {
         cors
       );
     }
+
     if (file.size <= 0) {
       return errorResponse(
         "Empty file",
@@ -115,6 +118,7 @@ Deno.serve(async (req) => {
         cors
       );
     }
+
     if (file.size > MAX_FILE_SIZE_BYTES) {
       return errorResponse(
         "File too large",
@@ -131,13 +135,41 @@ Deno.serve(async (req) => {
       file.name.replace(/\.pdf$/i, "") ||
       "Contrato";
 
+    const metaRaw = form.get("meta");
     let meta: Record<string, unknown> = {};
-    const metaInput = form.get("meta");
-    if (typeof metaInput === "string" && metaInput.trim()) {
+
+    if (metaRaw instanceof File) {
+      return errorResponse(
+        "Invalid meta",
+        "INVALID_META_TYPE",
+        "'meta' must be JSON string, not a file",
+        400,
+        cors
+      );
+    }
+
+    if (typeof metaRaw === "string" && metaRaw.trim()) {
       try {
-        meta = JSON.parse(metaInput);
+        const parsed = JSON.parse(metaRaw);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          meta = parsed;
+        } else {
+          return errorResponse(
+            "Invalid meta",
+            "INVALID_META_TYPE",
+            "'meta' must be JSON string, not a file",
+            400,
+            cors
+          );
+        }
       } catch {
-        meta = {};
+        return errorResponse(
+          "Invalid meta",
+          "INVALID_META_JSON",
+          "Could not parse JSON",
+          400,
+          cors
+        );
       }
     }
 
@@ -154,6 +186,7 @@ Deno.serve(async (req) => {
       );
     }
     const sha256 = await sha256Hex(buf);
+    console.log("[UPLOAD-CONTRACT] sha256:", sha256);
 
     // 4) supabase admin client
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, {
@@ -194,6 +227,7 @@ Deno.serve(async (req) => {
       upsert: false,
       cacheControl: "3600",
     });
+
     if (up.error) {
       return errorResponse(
         "Upload failed",
@@ -205,6 +239,7 @@ Deno.serve(async (req) => {
     }
 
     // 7) insert metadados (tratar 23505 -> duplicado por índice único)
+    console.log("[UPLOAD-CONTRACT] inserting with sha256?", !!sha256);
     const ins = await supabase
       .from("contract_files")
       .insert({
@@ -220,11 +255,14 @@ Deno.serve(async (req) => {
       .select()
       .single();
 
+    console.log(ins);
+
     if (ins.error) {
       // tentativa de limpeza do arquivo órfão
       try {
         await supabase.storage.from(BUCKET).remove([storagePath]);
       } catch {}
+
       if (ins.error.code === "23505") {
         return errorResponse(
           "Duplicate file",
