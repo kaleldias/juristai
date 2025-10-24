@@ -28,6 +28,7 @@ backend/prompts
 backend/sql/02_contract
 frontend/
 backend/.env
+#
 
 # scripts teste
 script.js
