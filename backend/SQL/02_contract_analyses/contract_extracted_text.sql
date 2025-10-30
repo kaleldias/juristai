@@ -10,10 +10,10 @@ CREATE TABLE IF NOT EXISTS contract_extracted_text(
   meta JSONB DEFAULT '{}'::JSONB,
   char_count INTEGER GENERATED ALWAYS AS (CHAR_LENGTH(extracted_text)) stored,
   created_at TIMESTAMPTZ CURRENT_TIMESTAMP NOT NULL,
-  -- Relação com a tabela contract_files
+  
   CONSTRAINT fk_contract_extracted_text_file_id
   FOREIGN KEY(contract_file_id) REFERENCES contract_files(id) ON DELETE CASCADE,
-  -- Relação com a tabela users_id
+  
   CONSTRAINT fk_contract_extracted_text_user_id 
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   -- Garante 1:1 com contract_files

@@ -2,7 +2,7 @@ CREATE TYPE analysis_status AS ENUM ('PENDING', 'RUNNING', 'SUCCEEDED', 'FAILED'
 
 
 
-CREATE TABLE IF NOT EXISTS create_analyses(
+CREATE TABLE IF NOT EXISTS contract_analyses(
   id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
   contract_file_id UUID NOT NULL,
   user_id UUID NOT NUL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS create_analyses(
   CHECK (finished_at is null OR finished_at >= started_at),
 
   CONSTRAINT fk_create_analyses_contract_file_id
-  FOREIGN KEY contract_file_id REFERENCES contract_files(id) ON DELETE CASCADE
+  FOREIGN KEY (contract_file_id) REFERENCES contract_files(id) ON DELETE CASCADE
   
   CONSTRAINT fk_create_analyses_user_id
   FOREIGN KEY user_id REFERENCES users(id) ON DELETE CASCADE

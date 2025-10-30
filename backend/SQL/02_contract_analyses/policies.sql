@@ -33,10 +33,6 @@ CREATE POLICY cet_owner_read
 ON contract_extracted_text FOR SELECT
 USING (user_id = auth.uid() or fn_is_admin());
 
-CREATE POLICY cet_owner_insert
-ON contract_extracted_text FOR INSERT
-WITH CHECK (user_id = auth.uid() or fn_is_admin());
-
 
 
 -- ====== POLICIES CONTRACT_ANALYSES (CA) ======
@@ -48,8 +44,16 @@ DROP POLICY IF EXISTS ca_owner_insert ON contract_analyses;
 
 CREATE POLICY ca_owner_read
 ON contract_analyses FOR SELECT
-USING (id = auth.uid() OR fn_is_admin());
+USING (user_id = auth.uid() OR fn_is_admin());
 
-CREATE POLICY ca_owner_insert
-ON contract_analyses FOR INSERT
-WITH CHECK (id = auth.uid() OR fn_is_admin())
+
+
+-- ====== POLICIES CONTRACT_FINDINGS (CF) ======
+ALTER TABLE contract_findings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS cf_owner_read ON contract_findings;
+DROP POLICY IF EXISTS cf_owner_insert ON contract_findings;
+
+CREATE POLICY cf_owner_read
+ON contract_findings FOR SELECT
+USING (user_id = auth.uid() OR fn_is_admin());
