@@ -6,7 +6,7 @@ import {
   shouldUseCookies,
   shouldIncludeTokensInBody,
 } from "../_shared/cors.ts";
-import { jsonResponse } from "../_shared/response.ts";
+import { jsonResponse, buildCookie } from "../_shared/response.ts";
 
 /**
  * Aguarda trigger criar registro em public.users
@@ -45,12 +45,6 @@ async function waitForUserProfile(
   return null;
 }
 
-/**
- * Constrói cookie com formato correto
- */
-function buildCookie(name: string, value: string, maxAge: number): string {
-  return `${name}=${value}; Max-Age=${maxAge}; Path=/; HttpOnly; Secure; SameSite=None`;
-}
 
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
