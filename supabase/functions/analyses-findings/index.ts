@@ -182,8 +182,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const total = count ?? null;
-    const totalPages = total ? Math.ceil(total / limit) : null;
+    const totalItems = count ?? null;
+    const totalPages = totalItems ? Math.ceil(totalItems / limit) : null;
     const hasNext = totalPages ? page < totalPages : false;
     const hasPrev = page > 1;
 
@@ -191,7 +191,7 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         items: data || [],
-        pagination: { page, limit, total, totalPages, hasNext, hasPrev },
+        pagination: { page, limit, totalItems, totalPages, hasNext, hasPrev },
         ...bodyExtras,
       }),
       { status: 200, headers: responseHeaders }

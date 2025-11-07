@@ -15,14 +15,10 @@ export function extractTokens(req: Request): TokenPair | null {
 
   // ===== PRIORIDADE 1: COOKIES (PROD) =====
   const cookieHeader = req.headers.get("Cookie");
-
   console.log(`[AUTH] Cookie header presente: ${!!cookieHeader}`);
 
   if (cookieHeader) {
     console.log(`[AUTH] Cookie header: ${cookieHeader.substring(0, 100)}...`);
-  }
-
-  if (cookieHeader) {
     const cookies: Record<string, string> = {};
 
     cookieHeader.split("; ").forEach((cookie) => {
@@ -51,23 +47,21 @@ export function extractTokens(req: Request): TokenPair | null {
     accessToken = authHeader.substring(7);
     refreshToken = refreshHeader; // Pode ser null
 
-    console.log(
-      "[AUTH] Access token extraído do header Authorization (desenvolvimento)"
-    );
+    console.log("[AUTH] Access token extraído do header Authorization (desenvolvimento)");
 
     if (refreshToken) {
       // prettier-ignore
       console.log("[AUTH] Refresh token extraído do header X-Refresh-Token (desenvolvimento)");
     } else {
       // prettier-ignore
-      console.log("[AUTH] ⚠️ Refresh token não fornecido - refresh automático não será possível");
+      console.log("[AUTH] Refresh token não fornecido - refresh automático não será possível");
     }
 
     return { accessToken, refreshToken };
   }
 
   // ===== NENHUM TOKEN ENCONTRADO =====
-  console.log("[AUTH] ❌ Nenhum token encontrado (nem cookies, nem headers)");
+  console.log("[AUTH] Nenhum token encontrado (nem cookies, nem headers)");
   return null;
 }
 

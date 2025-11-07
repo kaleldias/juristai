@@ -164,7 +164,7 @@ Deno.serve(async (req: Request) => {
         pagination: {
           page,
           limit,
-          total: count,
+          totalItems: count,
           totalPages,
           hasNext,
           hasPrev,
